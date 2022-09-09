@@ -8,6 +8,7 @@ const Campground = require('./models/campgrounds.js')
 const methodOverride = require('method-override')
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError')
+const { campgroundSchema } = require('./schemas')
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, "connection error:"))
@@ -22,6 +23,16 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body)
+    if (error) {
+        const message = error.details.map(detail => detail.message).join(',')
+        throw new ExpressError(message, 400)
+    } else {
+        next()
+    }
+}
 
 app.get('/', (req, res) => {
     res.render('home')
@@ -38,16 +49,16 @@ app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new')
 })
 
-app.post('/campgrounds', catchAsync(
+app.post('/campgrounds', validateCampground, catchAsync(
     async (req, res, next) => {
-        if (!req.body.campground) throw new ExpressError('Invalid data', 400)
+        // if (!req.body.campground) throw new ExpressError('Invalid data', 400)
         const newCampground = new Campground(req.body.campground)
         await newCampground.save()
         res.redirect(`/campgrounds/${newCampground._id}`)
     }
 ))
 
-app.put('/campgrounds/:id', catchAsync(
+app.put('/campgrounds/:id', validateCampground, catchAsync(
     async (req, res) => {
         const { id } = req.params
         await Campground.findByIdAndUpdate(id, req.body.campground)
