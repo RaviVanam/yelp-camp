@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const cities = require('./cities')
-const {descriptors, places} = require('./seedHelpers')
+const { descriptors, places } = require('./seedHelpers')
 const Campground = require('../models/campgrounds')
 
 const db = mongoose.connection
@@ -16,14 +16,14 @@ const randomPrice = () => Math.floor(Math.random() * 1000)
 
 const seedDB = async () => {
     await Campground.deleteMany({})
-    const camps = [] 
+    const camps = []
     for (city of cities) {
         camps.push({
             title: `${sample(descriptors)} ${sample(places)}`,
             location: city.name,
             description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae aliquam debitis voluptate quisquam minima beatae dolores fugiat, hic molestias facere? Cumque assumenda beatae animi facere, omnis error deserunt officia accusamus?',
-            image: 'https://source.unsplash.com/collection/6820',
-            price: randomPrice(), 
+            image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
+            price: randomPrice(),
         })
     }
 
