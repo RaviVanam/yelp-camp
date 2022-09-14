@@ -24,12 +24,12 @@ router.post('/register', catchAsync(async (req, res) => {
 }))
 
 router.get('/login', catchAsync(async (req, res) => {
-    console.log('login page', req.session);
     res.render('users/login')
 }))
 
 router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login', keepSessionInfo: true }), (req, res) => {
     const redirectTo = req.session.returnTo || '/campgrounds'
+    delete req.session.returnTo
     req.flash('success', 'welcome back!')
     res.redirect(redirectTo)
 })
