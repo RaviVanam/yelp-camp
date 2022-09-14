@@ -11,17 +11,22 @@ const flash = require('connect-flash')
 const campgroundRouter = require('./routes/campgrounds')
 const reviewRouter = require('./routes/reviews')
 
+// mongoose connection
 const db = mongoose.connection
 db.on('error', console.error.bind(console, "connection error:"))
 db.once('open', () => {
     console.log('Database connected')
 })
-
 mongoose.connect('mongodb://localhost:27017/yelp-camp')
 
+
+// setting app config
 app.engine('ejs', ejsMateEngine)
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+
+
+// pre router middleware
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')))
@@ -39,28 +44,25 @@ const sessionConfig = {
 
 app.use(session(sessionConfig))
 app.use(flash())
-
 app.use((req, res, next) => {
     res.locals.success = req.flash('success')
     res.locals.error = req.flash('error')
     next()
 })
 
+
 // routes
 app.use('/campgrounds', campgroundRouter)
 app.use('/campgrounds/:id/reviews', reviewRouter)
 
 
-app.get('/', (req, res) => {
-    res.render('home')
-})
-
-
-
+// error throwing
 app.all('*', (req, res, next) => {
     throw new ExpressError('Page not found', 404)
 })
 
+
+// error handling
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err
     if (!err.message) err.message = 'Something went wrong'
