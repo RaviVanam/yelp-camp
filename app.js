@@ -7,7 +7,6 @@ const mongoose = require('mongoose')
 const ejsMateEngine = require('ejs-mate')
 const app = express()
 const path = require('path')
-const port = 3333
 const methodOverride = require('method-override')
 const ExpressError = require('./utils/ExpressError')
 const session = require('express-session')
@@ -101,6 +100,7 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err })
 })
 
+const port = process.env.PORT || 3333
 app.listen(port, (first) => {
     console.log(`listening on port ${port}`)
 })
