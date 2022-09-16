@@ -18,14 +18,17 @@ const campgroundRouter = require('./routes/campgrounds')
 const reviewRouter = require('./routes/reviews')
 const usersRouter = require('./routes/users')
 const User = require('./models/user')
+const MongoDBStore = require('connect-mongo')
 
 // mongoose connection
+// const dbUrl = process.env.DB_URL
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp'
 const db = mongoose.connection
 db.on('error', console.error.bind(console, "connection error:"))
 db.once('open', () => {
     console.log('Database connected')
 })
-mongoose.connect('mongodb://localhost:27017/yelp-camp')
+mongoose.connect(dbUrl)
 
 
 // setting app config
@@ -39,15 +42,23 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')))
 
+const secret = process.env.SECRET || 'thisisnotasafesecretatall'
+
 const sessionConfig = {
-    secret: 'thisisnotasafesecretatall',
+    name: 'session',
+    secret: secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
         expries: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
-    }
+    },
+    store: MongoDBStore.create({
+        mongoUrl: dbUrl,
+        secret: secret,
+        touchAfter: 24 * 60 * 60
+    })
 }
 
 app.use(session(sessionConfig))
