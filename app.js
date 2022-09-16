@@ -75,7 +75,7 @@ app.use((req, res, next) => {
 app.use('/', usersRouter)
 app.use('/campgrounds', campgroundRouter)
 app.use('/campgrounds/:id/reviews', reviewRouter)
-
+app.get('/', (req, res) => res.render('home'))
 
 // error throwing
 app.all('*', (req, res, next) => {
